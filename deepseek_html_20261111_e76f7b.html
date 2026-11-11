@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конспект: результат теста в PyQt5</title>
+<style>
+  :root{
+    --paper:#fbf7ef;
+    --ink:#2b2a27;
+    --muted:#6b6558;
+    --rule:#d9cfbb;
+    --accent:#b5451f;
+    --accent-soft:#f3e2d6;
+    --code-bg:#1f2430;
+    --code-ink:#e8e2d4;
+    --code-key:#ffb86b;
+    --code-str:#a8d08d;
+    --code-com:#7d8799;
+    --highlight:#fff3b0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 20% 10%, #efe6d3 0%, transparent 55%),
+      radial-gradient(circle at 90% 80%, #f0e8d8 0%, transparent 50%),
+      var(--paper);
+    color:var(--ink);
+    font-family: "Georgia", "Times New Roman", serif;
+    line-height:1.65;
+    font-size:17px;
+    padding: 40px 16px 80px;
+  }
+  .sheet{
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--paper);
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 28px;
+    padding: 48px 56px 64px 88px;
+    border-radius: 4px;
+    box-shadow:
+      0 1px 0 rgba(0,0,0,.04),
+      0 18px 40px -22px rgba(60,40,20,.35);
+    position: relative;
+  }
+  /* красная линия поля */
+  .sheet::before{
+    content:"";
+    position:absolute;
+    top:0; bottom:0; left:64px;
+    width:2px;
+    background: #e3b7a8;
+    opacity:.7;
+  }
+  header{
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+  h1{
+    font-size: 30px;
+    margin: 0 0 6px;
+    letter-spacing:.2px;
+    line-height:1.2;
+  }
+  .subtitle{
+    color: var(--muted);
+    font-style: italic;
+    font-size: 15px;
+    margin:0;
+  }
+  h2{
+    font-size: 22px;
+    margin: 40px 0 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--rule);
+  }
+  h2 .num{
+    display:inline-block;
+    background: var(--accent);
+    color:#fff;
+    font-size:14px;
+    font-weight:normal;
+    width:26px;height:26px;
+    line-height:26px;
+    text-align:center;
+    border-radius:50%;
+    margin-right:10px;
+    vertical-align: 2px;
+    font-family: "Courier New", monospace;
+  }
+  h3{
+    font-size: 17px;
+    margin: 22px 0 6px;
+    color: var(--accent);
+  }
+  p{margin: 8px 0;}
+  ul,ol{margin: 8px 0 8px 22px; padding:0;}
+  li{margin: 4px 0;}
+  code.inline{
+    font-family: "Courier New", monospace;
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+  /* заметка на полях */
+  .margin-note{
+    float: right;
+    width: 190px;
+    margin: 6px -8px 14px 20px;
+    padding: 10px 12px;
+    background: var(--highlight);
+    border-left: 3px solid var(--accent);
+    font-size: 13.5px;
+    line-height:1.45;
+    transform: rotate(-1.2deg);
+    box-shadow: 2px 3px 0 rgba(0,0,0,.06);
+    font-family: "Segoe UI", "Helvetica", sans-serif;
+    color:#4a3f22;
+  }
+  .margin-note b{color:var(--accent);}
+  .clear{clear:both;}
+
+  /* блок кода */
+  .code{
+    position: relative;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: 6px;
+    padding: 16px 18px 16px 18px;
+    margin: 12px 0 18px;
+    font-family: "Courier New", monospace;
+    font-size: 14.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    tab-size: 4;
+  }
+  .code::before{
+    content: attr(data-lang);
+    position:absolute;
+    top: 6px; right: 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #6f7890;
+    text-transform: uppercase;
+  }
+  .code::after{
+    content: "копирование отключено";
+    position:absolute;
+    bottom: 4px; right: 12px;
+    font-size: 10.5px;
+    color:#5a6275;
+    font-style: italic;
+    letter-spacing:.3px;
+  }
+  .kw{color:var(--code-key);}
+  .str{color:var(--code-str);}
+  .com{color:var(--code-com); font-style: italic;}
+  .fn{color:#8fd3ff;}
+
+  /* таблица ошибок */
+  table{
+    width:100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 15px;
+    background: rgba(255,255,255,.55);
+  }
+  th,td{
+    border: 1px solid var(--rule);
+    padding: 8px 10px;
+    text-align:left;
+    vertical-align: top;
+  }
+  th{
+    background: #efe3cf;
+    font-weight: bold;
+  }
+  tr:nth-child(even) td{background: rgba(255,255,255,.35);}
+
+  .checklist li{ list-style: none; margin-left:-14px;}
+  .checklist li::before{
+    content:"☐";
+    margin-right: 8px;
+    color: var(--accent);
+    font-size: 17px;
+  }
+
+  .callout{
+    background: #fbf1e6;
+    border: 1px solid #e7cdb6;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 3px;
+    font-size: 15.5px;
+  }
+  .callout b{color:var(--accent);}
+
+  footer{
+    margin-top: 48px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--rule);
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    text-align:center;
+  }
+  /* тост при попытке копирования */
+  #toast{
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    z-index: 99;
+  }
+  #toast.show{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (max-width: 640px){
+    .sheet{padding: 32px 20px 48px 60px;}
+    .sheet::before{left: 40px;}
+    .margin-note{float:none; width:auto; margin: 10px 0; transform:none;}
+    h1{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <header>
+    <h1>Как вывести результат теста в PyQt5</h1>
+    <p class="subtitle">Конспект к программе «Memory Card». Собираем логику «Ответить / Показать результат»</p>
+  </header>
+
+  <div class="margin-note">
+    <b>Главная идея:</b> интерфейс уже нарисован. Нам осталось связать кнопку <code class="inline">btn_OK</code> с функцией, которая решает: показать вопрос или показать результат.
+  </div>
+
+  <h2><span class="num">1</span>Что уже готово в программе</h2>
+
+  <p>В файле созданы <b>два контейнера</b> типа <code class="inline">QGroupBox</code>:</p>
+  <ul>
+    <li><code class="inline">RadioGroupBox</code> — «Варианты ответов». Внутри четыре переключателя <code class="inline">QRadioButton</code>: <code class="inline">rbtn_1</code> … <code class="inline">rbtn_4</code>.</li>
+    <li><code class="inline">AnsGroupBox</code> — «Результат теста». Внутри два <code class="inline">QLabel</code>:
+      <ul>
+        <li><code class="inline">lb_Result</code> — сюда пишем «Правильно!» или «Неверно!»;</li>
+        <li><code class="inline">lb_Correct</code> — сюда пишем текст правильного ответа.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p>Сейчас <code class="inline">AnsGroupBox</code> скрыта, а <code class="inline">RadioGroupBox</code> показана. Значит, по нажатию кнопки нужно <b>переключать видимость</b> этих панелей и заполнять надписи.</p>
+
+  <h2><span class="num">2</span>Заводим данные о правильном ответе</h2>
+
+  <div class="margin-note">
+    Правильные ответы — это <b>данные</b>, а не часть интерфейса. Их удобно держать отдельно, чтобы потом добавить несколько вопросов.
+  </div>
+
+  <p>Пока в программе нет информации о том, какой вариант верный. Нужна переменная-состояние. Проще всего — словарь, где хранится номер правильного варианта и его текст. Номер считаем с нуля: <code class="inline">0</code> — первый, <code class="inline">1</code> — второй и так далее.</p>
+
+  <p>Объяви этот словарь <b>после</b> создания всех виджетов, но <b>до</b> функции-обработчика.</p>
+
+<div class="code" data-lang="python"><span class="com"># словарь с данными текущего вопроса</span>
+question_data = {
+    <span class="str">'correct_index'</span>: <span class="kw">2</span>,            <span class="com"># номер правильного варианта (0..3)</span>
+    <span class="str">'correct_text'</span>:  <span class="str">'Вариант 3'</span>  <span class="com"># что показать в lb_Correct</span>
+}</div>
+
+  <h2><span class="num">3</span>Флаг режима: вопрос или результат</h2>
+
+  <p>Кнопка должна работать в двух режимах. Чтобы функция понимала, в каком она сейчас, заведи переменную-флаг рядом с данными:</p>
+
+<div class="code" data-lang="python"><span class="com"># False — показан вопрос, True — показан результат</span>
+answer_shown = <span class="kw">False</span></div>
+
+  <p>При каждом нажатии мы будем её переключать. Это позволяет обойтись <b>одной</b> функцией на оба режима — так код короче и понятнее.</p>
+
+  <div class="clear"></div>
+
+  <h2><span class="num">4</span>Пишем функцию-обработчик</h2>
+
+  <p>Функция — обычная функция Python без аргументов. Внутри — развилка по флагу.</p>
+
+  <h3>4.1. Ветка «показать результат»</h3>
+
+  <p>Срабатывает, когда <code class="inline">answer_shown == False</code>, то есть сейчас виден вопрос. Порядок действий:</p>
+
+  <ol>
+    <li>Определи, какой переключатель выбран. У <code class="inline">QRadioButton</code> есть метод <code class="inline">isChecked()</code>, он возвращает <code class="inline">True</code> или <code class="inline">False</code>. Проверяешь по очереди все четыре и запоминаешь номер выбранного (или <code class="inline">-1</code>, если ни один не выбран).</li>
+    <li>Если ни один не выбран — просто <code class="inline">return</code>. Ничего не ломается, панели не переключаются.</li>
+    <li>Сравни номер выбранного с <code class="inline">question_data['correct_index']</code>.</li>
+    <li>Заполни <code class="inline">lb_Result</code> через <code class="inline">setText()</code>: «Правильно!» или «Неверно!».</li>
+    <li>Заполни <code class="inline">lb_Correct</code> текстом правильного ответа.</li>
+    <li>Спрячь <code class="inline">RadioGroupBox</code> методом <code class="inline">hide()</code> и покажи <code class="inline">AnsGroupBox</code> методом <code class="inline">show()</code>.</li>
+    <li>Поменяй надпись кнопки: <code class="inline">btn_OK.setText('Следующий вопрос')</code>.</li>
+    <li>Переключи флаг: <code class="inline">answer_shown = True</code>.</li>
+  </ol>
+
+  <div class="callout">
+    <b>Важно:</b> чтобы менять переменную <code class="inline">answer_shown</code> внутри функции, в начале функции нужно написать <code class="inline">global answer_shown</code>. Иначе Python создаст локальную переменную и флаг снаружи не изменится.
+  </div>
+
+  <p>Скелет ветки — примерно такой (собери сам, подставляя свои имена):</p>
+
+<div class="code" data-lang="python"><span class="kw">def</span> <span class="fn">check_answer</span>():
+    <span class="kw">global</span> answer_shown
+
+    <span class="kw">if not</span> answer_shown:
+        <span class="com"># 1) ищем выбранный вариант</span>
+        selected = -<span class="kw">1</span>
+        <span class="kw">if</span> rbtn_1.isChecked(): selected = <span class="kw">0</span>
+        <span class="kw">elif</span> rbtn_2.isChecked(): selected = <span class="kw">1</span>
+        <span class="kw">elif</span> rbtn_3.isChecked(): selected = <span class="kw">2</span>
+        <span class="kw">elif</span> rbtn_4.isChecked(): selected = <span class="kw">3</span>
+
+        <span class="com"># 2) ничего не выбрано — выходим</span>
+        <span class="kw">if</span> selected == -<span class="kw">1</span>:
+            <span class="kw">return</span>
+
+        <span class="com"># 3) сравниваем с правильным</span>
+        <span class="kw">if</span> selected == question_data[<span class="str">'correct_index'</span>]:
+            lb_Result.setText(<span class="str">'Правильно!'</span>)
+        <span class="kw">else</span>:
+            lb_Result.setText(<span class="str">'Неверно!'</span>)
+
+        <span class="com"># 4) показываем правильный ответ</span>
+        lb_Correct.setText(question_data[<span class="str">'correct_text'</span>])
+
+        <span class="com"># 5) переключаем панели и кнопку</span>
+        RadioGroupBox.hide()
+        AnsGroupBox.show()
+        btn_OK.setText(<span class="str">'Следующий вопрос'</span>)
+        answer_shown = <span class="kw">True</span></div>
+
+  <h3>4.2. Ветка «вернуться к вопросу»</h3>
+
+  <p>Срабатывает, когда <code class="inline">answer_shown == True</code>, то есть сейчас виден результат. Действия:</p>
+
+  <ol>
+    <li>Спрячь <code class="inline">AnsGroupBox</code>, покажи <code class="inline">RadioGroupBox</code>.</li>
+    <li>Верни надпись кнопки: <code class="inline">btn_OK.setText('Ответить')</code>.</li>
+    <li>Сбрось все переключатели: у каждого из <code class="inline">rbtn_1</code> … <code class="inline">rbtn_4</code> вызови <code class="inline">setChecked(False)</code>.</li>
+    <li>Переключи флаг обратно: <code class="inline">answer_shown = False</code>.</li>
+  </ol>
+
+  <p>Эта ветка — <code class="inline">else</code> к той <code class="inline">if not answer_shown</code>, что в предыдущем блоке. Собери её по образцу, только с обратными действиями.</p>
+
+  <h2><span class="num">5</span>Подключаем кнопку к функции</h2>
+
+  <p>В PyQt5 события подключаются через сигнал <code class="inline">clicked</code> и слот — обычную функцию Python. Строка подключения выглядит так:</p>
+
+<div class="code" data-lang="python">btn_OK.clicked.connect(check_answer)</div>
+
+  <p>Куда её ставить: <b>после</b> объявления функции <code class="inline">check_answer</code> и <b>до</b> вызова <code class="inline">app.exec()</code>. Причина: <code class="inline">app.exec()</code> запускает цикл событий и блокирует строку, пока окно не закроют. Всё, что написано после него, выполнится только при закрытии окна — поэтому подключение сигнала должно быть раньше.</p>
+
+  <h2><span class="num">6</span>Порядок в файле</h2>
+
+  <p>Собери куски в таком порядке — тогда не будет ошибок вида <code class="inline">NameError</code>:</p>
+
+  <ol>
+    <li>Импорты и <code class="inline">app = QApplication([])</code>.</li>
+    <li>Создание всех виджетов (кнопка, вопрос, переключатели, панели).</li>
+    <li>Компоновка (layout'ы).</li>
+    <li>Словарь <code class="inline">question_data</code> и флаг <code class="inline">answer_shown</code>.</li>
+    <li>Функция <code class="inline">check_answer</code>.</li>
+    <li><code class="inline">btn_OK.clicked.connect(check_answer)</code>.</li>
+    <li><code class="inline">window.show()</code> и <code class="inline">app.exec()</code>.</li>
+  </ol>
+
+  <h2><span class="num">7</span>Типичные ошибки</h2>
+
+  <table>
+    <thead>
+      <tr><th>Ошибка</th><th>Почему плохо</th><th>Как правильно</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Функция объявлена после <code class="inline">connect</code></td>
+        <td>Python выбросит <code class="inline">NameError</code></td>
+        <td>Объяви функцию до подключения сигнала</td>
+      </tr>
+      <tr>
+        <td>Нет проверки, выбран ли вариант</td>
+        <td>Сравнение с «ничем» даст неверный результат</td>
+        <td>Сначала проверь <code class="inline">isChecked()</code>, если ни один — <code class="inline">return</code></td>
+      </tr>
+      <tr>
+        <td>Забыл <code class="inline">AnsGroupBox.show()</code></td>
+        <td>Пользователь не увидит результат</td>
+        <td>Не забудь про <code class="inline">show()</code> и <code class="inline">hide()</code> у обеих панелей</td>
+      </tr>
+      <tr>
+        <td>Не сброшены переключатели при возврате</td>
+        <td>Старый выбор остаётся, можно случайно нажать «Ответить» с прежним вариантом</td>
+        <td>Пройдись по <code class="inline">rbtn_1..rbtn_4</code> и вызови <code class="inline">setChecked(False)</code></td>
+      </tr>
+      <tr>
+        <td>Нет <code class="inline">global answer_shown</code></td>
+        <td>Флаг снаружи не изменится, режимы не переключаются</td>
+        <td>Первой строкой функции напиши <code class="inline">global answer_shown</code></td>
+      </tr>
+      <tr>
+        <td>Сравниваешь объекты <code class="inline">QRadioButton</code> вместо номеров</td>
+        <td>Сравнение объектов не даст нужного результата</td>
+        <td>Сравнивай индексы <code class="inline">0..3</code> или строки ответов</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="num">8</span>Чек-лист проверки</h2>
+
+  <ul class="checklist">
+    <li>Запустил программу — видна панель вариантов, панель результата скрыта.</li>
+    <li>Нажал «Ответить» без выбора — ничего не сломалось, панели не переключились.</li>
+    <li>Выбрал верный вариант — появилось «Правильно!» и текст правильного ответа.</li>
+    <li>Нажал кнопку ещё раз — снова панель вариантов, галочки сняты.</li>
+    <li>Выбрал неверный вариант — появилось «Неверно!» и текст правильного ответа.</li>
+    <li>При повторном показе вопроса можно выбрать другой вариант и получить другой результат.</li>
+  </ul>
+
+  <h2><span class="num">9</span>Куда двигаться дальше</h2>
+
+  <p>Когда базовый сценарий работает, можно расширять:</p>
+  <ul>
+    <li>завести <b>список вопросов</b> (каждый — словарь с полями <code class="inline">question</code>, <code class="inline">answers</code>, <code class="inline">correct</code>) и переключаться по кнопке «Следующий вопрос»;</li>
+    <li>считать <b>счёт</b> правильных ответов и показывать его в конце;</li>
+    <li>вынести данные вопросов в отдельный файл (например, JSON) и загружать при старте.</li>
+  </ul>
+
+  <p>Но сначала добейся стабильной работы одного вопроса — это фундамент для всего остального.</p>
+
+  <footer>
+    Если застрял — вернись к таблице ошибок в разделе 7. Чаще всего проблема именно там.
+  </footer>
+
+</div>
+
+<div id="toast">Копирование отключено — набери код сам, так запомнишь</div>
+
+<script>
+  (function(){
+    var toast = document.getElementById('toast');
+    var timer = null;
+
+    function showToast(){
+      toast.classList.add('show');
+      clearTimeout(timer);
+      timer = setTimeout(function(){ toast.classList.remove('show'); }, 1600);
+    }
+
+    // запрет выделения в блоках кода
+    document.querySelectorAll('.code').forEach(function(el){
+      el.addEventListener('copy', function(e){
+        e.preventDefault();
+        e.clipboardData && e.clipboardData.setData('text/plain', '');
+        showToast();
+      });
+      el.addEventListener('cut', function(e){ e.preventDefault(); showToast(); });
+      el.addEventListener('contextmenu', function(e){ e.preventDefault(); showToast(); });
+      el.addEventListener('dragstart', function(e){ e.preventDefault(); showToast(); });
+    });
+
+    // на всякий случай — общий перехват Ctrl+C на странице только для текста кода
+    document.addEventListener('keydown', function(e){
+      var isCopy = (e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C');
+      if(!isCopy) return;
+      var sel = window.getSelection();
+      if(!sel || sel.rangeCount === 0) return;
+      var node = sel.anchorNode;
+      while(node && node !== document.body){
+        if(node.classList && node.classList.contains('code')){
+          e.preventDefault();
+          showToast();
+          return;
+        }
+        node = node.parentNode;
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>
